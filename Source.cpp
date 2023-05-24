@@ -13,14 +13,14 @@ const unsigned int ENEMY_START_X = 1;
 const unsigned int ENEMY_START_Y = 1;
 const unsigned int ENEMY_SPACING = 4;
 const unsigned int OBSTACLE_START_X = 1;
-const unsigned int OBSTACLE_START_Y = HEIGHT - 4;
+const unsigned int OBSTACLE_START_Y = HEIGHT - 5;
 const unsigned int OBSTACLE_SPACING = 1;
-const unsigned int numOfEnemies = 1;
-const unsigned int enemyRows = 1;
+const unsigned int numOfEnemies = 5;
+const unsigned int enemyRows = 4;
 bool gameOver = false;
 int unsigned score = 0;
 const unsigned int totalNumOfEn = enemyRows * numOfEnemies;
-const unsigned int numOfObstacles = 38;
+const unsigned int numOfObstacles = WIDTH - 2;
 const unsigned int obstacleRows = 2;
 const unsigned int totalNumOfOb = obstacleRows * numOfObstacles;
 
@@ -299,7 +299,7 @@ int getCurrentEnemies(enemy enemies[]) {
 int main() {
     srand(time(NULL));
     struct player player1;
-    struct obstacle obstacles[numOfObstacles];
+    struct obstacle obstacles[totalNumOfOb];
     struct enemy enemies[totalNumOfEn]{};
     cout << HEIGHT;
     playerInit(player1);
@@ -332,8 +332,6 @@ int main() {
             cout << "YOU HAVE WON";
             exit(0);
         }
-        cout << player1.playerX << " " << player1.playerY << endl;
-        cout << HEIGHT << endl;
     }
     cout << "GAME OVER";
     return 0;
