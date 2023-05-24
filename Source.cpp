@@ -21,7 +21,7 @@ bool gameOver = false;
 int unsigned score = 0;
 const unsigned int totalNumOfEn = enemyRows * numOfEnemies;
 const unsigned int numOfObstacles = WIDTH - 2;
-const unsigned int obstacleRows = 1;
+const unsigned int obstacleRows = 2;
 const unsigned int totalNumOfOb = obstacleRows * numOfObstacles;
 
 struct player {
