@@ -1,10 +1,11 @@
-#include <iostream>
+﻿#include <iostream>
 #include <conio.h>
 #include <windows.h>
 using std::cout;
 using std::cin;
 using std::endl;
 
+//Globalne spremenljivke, večinoma konstantne vrednosti. Če se bo program nadgrajeval v prihodnjosti in dodalo različne levele, bodo spremenljivke, ki določajo število sovražnikov in ovir, premaknjene v main(), kjer se bo njihovo število inicializiranih spreminjalo.
 const unsigned int WIDTH = 40;
 const unsigned int HEIGHT = 20;
 const unsigned int PLAYER_START_X = WIDTH / 2;
@@ -24,46 +25,52 @@ const unsigned int numOfObstacles = WIDTH - 2;
 const unsigned int obstacleRows = 2;
 const unsigned int totalNumOfOb = obstacleRows * numOfObstacles;
 
+
+//Definirana struktura igralca 
 struct player {
-    unsigned int playerX = WIDTH / 2;
-    unsigned int playerY = HEIGHT - 1;
-    unsigned int bulletX = playerX;
-    unsigned int bulletY = playerY - 1;
-    bool isFiring = false;
+    unsigned int playerX = WIDTH / 2; //X os igralca
+    unsigned int playerY = HEIGHT - 1; //Y os igralca
+    unsigned int bulletX = playerX; // X os metka
+    unsigned int bulletY = playerY - 1; // Y os metka
+    bool isFiring = false; //Stanje streljanja
 };
 
+//Definirana struktura sovražnikov (glej strukturo igralca)
 struct enemy {
     int unsigned enemyX = 0;
     int unsigned enemyY = 0;
-    bool enemyIsFiring = false;
     int unsigned enemyBulletX = 0;
     int unsigned enemyBulletY = 0;
-    bool isAlive = true;
-    bool enemyBelow = false;
+    bool enemyIsFiring = false;
+    bool isAlive = true; //Stanje sovražnika - mrtev ali živ
+    bool enemyBelow = false; //Stanje sovražnika pod trenutnim - mrtev ali ne / ali sploh je
 };
 
+//Definirana struktura ovire (glej strukturo igralca)
 struct obstacle {
     unsigned int obstacleX = 0;
     unsigned int obstacleY = 0;
     bool isThere = false;
 };
 
+//Funkcija za izrisevanje igralne podlage, ki se jo generira preko cout funkcije (C++ ekvivalent printf(), ki deluje preko underflowanja <<)
 void drawBoard(player p1, enemy enemies[], obstacle obstacles[]) {
+    //čiščenje cmdja
     COORD coord;
     coord.X = 0;
     coord.Y = 0;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-
+    //Izriše zgornji del
     for (int i = 0; i < WIDTH + 2; i++) {
         cout << "-";
     }
     cout << endl;
-
+    //Itiracija skozi stolpce
     for (int i = 0; i < HEIGHT; i++) {
         cout << "|";
-
+        //Iteracija skozi vrstice
         for (int j = 0; j < WIDTH; j++) {
-            bool isObstacle = false;
+            bool isObstacle = false; //Ali je ovira tam ali ne. Če je, izriše #.
 
             for (int m = 0; m < totalNumOfOb; m++) {
                 if (i == obstacles[m].obstacleY && j == obstacles[m].obstacleX && obstacles[m].isThere) {
@@ -72,7 +79,7 @@ void drawBoard(player p1, enemy enemies[], obstacle obstacles[]) {
                     break;
                 }
             }
-
+            //Če ni ovire, pogleda če je tam igralec ali pa sovražnik.
             if (!isObstacle) {
                 if (i == p1.playerY && j == p1.playerX) {
                     cout << "A";
@@ -81,7 +88,7 @@ void drawBoard(player p1, enemy enemies[], obstacle obstacles[]) {
                     cout << "*";
                 }
                 else {
-                    bool enemyAlive = false;
+                    bool enemyAlive = false; //Ali je sovražnik živ. Če je, izpiše M, drugače pa presledek.
                     for (int k = 0; k < totalNumOfEn; k++) {
                         if (i == enemies[k].enemyY && j == enemies[k].enemyX) {
                             cout << "M";
@@ -100,24 +107,26 @@ void drawBoard(player p1, enemy enemies[], obstacle obstacles[]) {
                 }
             }
         }
-
+        //Okvir podlage
         cout << "|" << endl;
     }
-
+    //Spodnji del okvira
     for (int i = 0; i < WIDTH + 2; i++) {
         cout << "-";
     }
     cout << endl;
-
+    //Izpiše rezultat
     cout << "Score: " << score << endl;
 }
 
+//Funckija inicalizacije igralca
 void playerInit(player& p1) {
     p1.playerX = WIDTH / 2;
     p1.playerY = HEIGHT - 1;
     p1.isFiring = false;
 }
 
+//Funckija inicalizacije sovnjihovo število sovražnikov. Pozicija je določena glede na njihovo število po vrsticah 
 void enemyInit(enemy enemies[]) {
     for (int j = 0; j < enemyRows; j++) {
         for (int i = 0; i < numOfEnemies; i++) {
@@ -129,9 +138,10 @@ void enemyInit(enemy enemies[]) {
     }
 }
 
+//Funckija inicalizacije ovir, ki poteka podobno kot pri sovražnik le, da imajo določeno možnost generiranja.
 void obstacleInit(obstacle obstacles[]) {
     srand(time(NULL));
-    unsigned int obstacleChance;
+    unsigned int obstacleChance; //Možnost generiranja
     for (int j = 0; j < obstacleRows; j++) {
         for (int i = 0; i < numOfObstacles; i++) {
             
@@ -151,6 +161,7 @@ void obstacleInit(obstacle obstacles[]) {
 
 }
 
+//Funkcija premika igralca, ki spreminja X koordinato igralca, in njegovo stanje streljanja. Dodana je tudi funkcija exit(0) za prekinitev igre 
 void movePlayer(char input, player& p1) {
     switch (input) {
     case 'a':
@@ -176,11 +187,12 @@ void movePlayer(char input, player& p1) {
     }
 }
 
+//funkcija za premik in stanje streljanja sovražnikov
 void moveEnemies(enemy enemies[], player& p1) {
-    static int enemyDirection = 1;
+    static int enemyDirection = 1; //Smer premikanja
     for (int i = 0; i < totalNumOfEn; i++) {
-        if (enemies[i].isAlive) {
-            if (enemies[i].enemyX <= 0) {
+        if (enemies[i].isAlive) { //Ali je konkreten sovražnik živ, drugače se ga ignorira
+            if (enemies[i].enemyX <= 0) { // Če zadane rob, spremeni smer in iterira eno vrstico dol
                 enemyDirection = 1;
                 for (int j = 0; j < enemyRows; j++) {
                     for (int i = 0; i < numOfEnemies; i++) {
@@ -189,7 +201,7 @@ void moveEnemies(enemy enemies[], player& p1) {
                 }
                 break;
             }
-            else if (enemies[i].enemyX == WIDTH - 1) {
+            else if (enemies[i].enemyX == WIDTH - 1) { // Če zadane rob, spremeni smer in iterira eno vrstico dol
                 enemyDirection = -1;
                 for (int j = 0; j < enemyRows; j++) {
                     for (int i = 0; i < numOfEnemies; i++) {
@@ -198,35 +210,41 @@ void moveEnemies(enemy enemies[], player& p1) {
                 }
                 break;
             }
+            //Pripis vrednosti, če je sovražnik pod sovražnikom
             for (int j = i + numOfEnemies; j < totalNumOfEn; j += numOfEnemies) {
                 if (enemies[j].isAlive) {
                     enemies[j].enemyBelow = true;
 
                 }
             }
+            //Če ni sovražnika pod sovražnikom in če sovražnik ne strela, sovražnik lahko strelja
             if (enemies[i].enemyIsFiring == false && !enemies[i].enemyBelow) {
                 srand(time(NULL));
                 int chance = rand() % 5;
-                if (chance == 0) {
+                if (chance == 0) { //sovražnik strelja, če je vrednost chance deljiva s 5
                     enemies[i].enemyIsFiring = true;
                     enemies[i].enemyBulletX = enemies[i].enemyX;
                     enemies[i].enemyBulletY = enemies[i].enemyY + 1;
                 }
             }
+            //Izračunane interakcije z metkom in igralcem, tukaj je tudi pripisana možnost za izgub igre
             if (enemies[i].enemyIsFiring == true) {
                 enemies[i].enemyBulletY++;
                 if (enemies[i].enemyBulletY == p1.playerY && enemies[i].enemyBulletX == p1.playerX) {
                     gameOver = true;
                 }
+                //Če je na sovražnikov metek doseže spodnji del podlage, sovražnik ne strelja več
                 else if (enemies[i].enemyBulletY == HEIGHT - 1) {
                     enemies[i].enemyIsFiring = false;
                 }
             }
+            //Če sovražnik pride do iste vrstice kot je igralec je igre konec
             if (enemies[i].enemyY == p1.playerY) {
                 gameOver = true;
             }
         }
     }
+    //Pripis smeri premikanja h koordinatam igralca
     for (int i = 0; i < totalNumOfEn; i++) {
         enemies[i].enemyX += enemyDirection;
     }
