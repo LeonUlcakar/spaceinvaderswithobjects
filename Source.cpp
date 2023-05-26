@@ -16,15 +16,14 @@ const unsigned int ENEMY_SPACING = 4;
 const unsigned int OBSTACLE_START_X = 1;
 const unsigned int OBSTACLE_START_Y = HEIGHT - 5;
 const unsigned int OBSTACLE_SPACING = 1;
-const unsigned int numOfEnemies = 5;
-const unsigned int enemyRows = 4;
-bool gameOver = false;
-int unsigned score = 0;
+const unsigned int numOfEnemies = 4;
+const unsigned int enemyRows = 2;
 const unsigned int totalNumOfEn = enemyRows * numOfEnemies;
 const unsigned int numOfObstacles = WIDTH - 2;
 const unsigned int obstacleRows = 2;
 const unsigned int totalNumOfOb = obstacleRows * numOfObstacles;
-
+bool gameOver = false;
+int unsigned score = 0;
 
 //Definirana struktura igralca 
 struct player {
