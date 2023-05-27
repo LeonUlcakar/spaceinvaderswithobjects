@@ -1,20 +1,24 @@
-﻿#include <iostream>
-#include <conio.h>
-#include <windows.h>
-using std::cout;
-using std::cin;
-using std::endl;
-
-/*
+﻿/*
 Spodaj napisan program je namenjen za projektno nalogo pri predmetu Programiranje mikrokrmilnikov na Fakulteti za elektrotehniko na Univerzi Ljubljana.
 S projektom sem naredil igro Space Invaders, ki je originalno izšla na Atari konzoli. Moj namen je bil narediti podobno igro z ASCII znaki, vmes sem si
 pa dovolil nekatere stvari spremeniti, kot je generacija ovir, namreč sem hotel v nadaljevanju naresti še posamezne levele, vendar zaradi urnika na faksu,
 kolokvijev in drugih obštudijskih projektov, ni uspelo. Zaradi tega je program napisan tako, da se mu na lahek način spreminja število ovir in sovražnikov.
 V primeru, da mi bo čez poletje dolgčas, se bom s programom še kaj igral.
 
-Princip delovanja igre temelji na enem while loopu, v katerem kličem funkcije, dokler igralec ne zmaga, oziroma je ubit. Po
+Princip delovanja igre temelji na enem while loopu, v katerem kličem funkcije, dokler igralec ne zmaga, oziroma je ubit. Te funkcije kontrolirajo premik
+sovražnikov, igralca, prihod podatkovin število objektov na igralni površini, poleg tega, ostale funkcijo priskrbijo za pravilno inicializacijo igralca,
+ovir in sovražnikov. Vse logične spremenljivke sem zapisal v obliki structov medtem, ko sem pa zapis konstant zapisal kot posamezne globalne spremenljivke.
+
+Ko se bom spet podal v podoben projekt, bom izkoristil raje class namesto structa, saj bi mi dovolil uporabo metod, ki bi olajšale delo. Poleg tega me
+je začel zanimati tudi multi-threading, ker trenutno uporabljam metodo busy wait, ki temelji na linearnem izvajanju in čakanju na naslednjo izvedbo loopa.
 */
 
+#include <iostream>
+#include <conio.h>
+#include <windows.h>
+using std::cout;
+using std::cin;
+using std::endl;
 
 //Globalne spremenljivke, večinoma konstantne vrednosti. Če se bo program nadgrajeval v prihodnjosti in dodalo različne levele, bodo spremenljivke, ki določajo število sovražnikov in ovir, premaknjene v main(), kjer se bo njihovo število inicializiranih spreminjalo.
 const unsigned int WIDTH = 40;
