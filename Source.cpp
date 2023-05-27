@@ -5,6 +5,17 @@ using std::cout;
 using std::cin;
 using std::endl;
 
+/*
+Spodaj napisan program je namenjen za projektno nalogo pri predmetu Programiranje mikrokrmilnikov na Fakulteti za elektrotehniko na Univerzi Ljubljana.
+S projektom sem naredil igro Space Invaders, ki je originalno izšla na Atari konzoli. Moj namen je bil narediti podobno igro z ASCII znaki, vmes sem si
+pa dovolil nekatere stvari spremeniti, kot je generacija ovir, namreč sem hotel v nadaljevanju naresti še posamezne levele, vendar zaradi urnika na faksu,
+kolokvijev in drugih obštudijskih projektov, ni uspelo. Zaradi tega je program napisan tako, da se mu na lahek način spreminja število ovir in sovražnikov.
+V primeru, da mi bo čez poletje dolgčas, se bom s programom še kaj igral.
+
+Princip delovanja igre temelji na enem while loopu, v katerem kličem funkcije, dokler igralec ne zmaga, oziroma je ubit. Po
+*/
+
+
 //Globalne spremenljivke, večinoma konstantne vrednosti. Če se bo program nadgrajeval v prihodnjosti in dodalo različne levele, bodo spremenljivke, ki določajo število sovražnikov in ovir, premaknjene v main(), kjer se bo njihovo število inicializiranih spreminjalo.
 const unsigned int WIDTH = 40;
 const unsigned int HEIGHT = 20;
@@ -249,38 +260,43 @@ void moveEnemies(enemy enemies[], player& p1) {
     }
 }
 
+//Funkcija premikanja metkov
 void moveBullets(player& p1, enemy enemies[], obstacle obstacles[]) {
     if (p1.isFiring) {
-        p1.bulletY--;
+        p1.bulletY--; //Premik metka navzgor
         if (p1.bulletY <= 0) {
-            p1.isFiring = false;
-            p1.bulletX = ' ';
+            p1.isFiring = false; //Igralec ne strelja več, ker so metki prišli do zgornje limite
+            p1.bulletX = ' '; //X koordinato nastavi na ' ', kar ga efektivno zbriše
+            p1.bulletY = ' '; //Y koordinato nastavi na ' ', kar ga efektivno zbriše
         }
-        for (int i = 0; i <= totalNumOfEn; i++) {
+        //Igralec zadane sovražnika
+        for (int i = 0; i < totalNumOfEn; i++) {
             if (p1.bulletY == enemies[i].enemyY && p1.bulletX == enemies[i].enemyX) {
                 p1.isFiring = false;
                 enemies[i].enemyX = ' ';
                 enemies[i].enemyY = ' ';
                 p1.bulletX = ' ';
                 p1.bulletY = ' ';
-                score += 10;
-                enemies[i].isAlive = false;
+                score += 10; //Poveča točke
+                enemies[i].isAlive = false; //Sovražnik je umrl
             }
         }
     }
+    //Premik sovražnikovega metka
     for (int i = 0; i <= totalNumOfEn; i++) {
         if (enemies[i].enemyIsFiring) {
-            enemies[i].enemyBulletY++;
+            enemies[i].enemyBulletY++; //Premik sovražnikovega metka navzdol
             if (enemies[i].enemyBulletY > HEIGHT) {
-                enemies[i].enemyIsFiring = false;
+                enemies[i].enemyIsFiring = false; //Sovražnik ne strelja več, ker je so metki prišli do spodnje limite
             }
-            if (enemies[i].enemyBulletY == p1.playerY && enemies[i].enemyBulletX == p1.playerX) {
+            if (enemies[i].enemyBulletY == p1.playerY && enemies[i].enemyBulletX == p1.playerX) { //Ob premiru, da sovražnik zadane igralca, igralec zgubi
                 gameOver = true;
                 break;
             }
         }
     }
     for (int i = 0; i < totalNumOfOb; i++) {
+        //Igralec zadane oviro
         if (p1.bulletY == obstacles[i].obstacleY && p1.bulletX == obstacles[i].obstacleX && obstacles[i].isThere) {
             p1.isFiring = false;
             obstacles[i].obstacleX = ' ';
@@ -290,18 +306,21 @@ void moveBullets(player& p1, enemy enemies[], obstacle obstacles[]) {
             score += 1;
             obstacles[i].isThere = false;
         }
+        //Sovražnik zadane oviro
         for (int j = 0; j < totalNumOfEn; j++) {
             if (enemies[j].enemyBulletY == obstacles[i].obstacleY && enemies[j].enemyBulletX == obstacles[i].obstacleX && obstacles[i].isThere) {
-                enemies[j].enemyIsFiring = false;
                 obstacles[i].obstacleX = ' ';
                 obstacles[i].obstacleY = ' ';
+                enemies[j].enemyBulletX = ' ';
+                enemies[j].enemyBulletY = ' ';
+                enemies[j].enemyIsFiring = false;
                 obstacles[i].isThere = false;
             }
         }
     }
 }
 
-
+//Funkcija, ki vrne število živih sovražnikov
 int getCurrentEnemies(enemy enemies[]) {
     int alive = 0;
     for (int i = 0; i < totalNumOfEn; i++) {
@@ -314,24 +333,25 @@ int getCurrentEnemies(enemy enemies[]) {
 }
 
 int main() {
-    srand(time(NULL));
-    struct player player1;
-    struct obstacle obstacles[totalNumOfOb];
-    struct enemy enemies[totalNumOfEn]{};
-    cout << HEIGHT;
-    playerInit(player1);
-    enemyInit(enemies);
-    obstacleInit(obstacles);
-    char input;
-    int timer = 0;
-    int numOfAlive;
-    while (!gameOver) {
-        numOfAlive = getCurrentEnemies(enemies);
+    srand(time(NULL)); //Funkcija ki prične timer za slučajno generacijo
+    struct player player1; //Inicializacija igralca
+    struct obstacle obstacles[totalNumOfOb]; //Inicializacija ovir
+    struct enemy enemies[totalNumOfEn]{}; //Inicializacija sovražnikov
+    playerInit(player1); //klic funkcije za določitev začetnih vrednosti
+    enemyInit(enemies); //klic funkcije za določitev začetnih vrednosti
+    obstacleInit(obstacles); //klic funkcije za določitev začetnih vrednosti
+    char input; //Inilizacija podatkov za premik
+    int timer = 0; //Inicializacija timerja, pomemben za časovni premik
+    int numOfAlive; //Inicializacija vrednosti živih sovražnikov
+    while (!gameOver) { //Dokler igre ni konec - konec je podan znotraj funkcij
+        numOfAlive = getCurrentEnemies(enemies); 
+        //Nastavitev hitrosti premika sovražnikov
         if (numOfAlive < 5) {
             if (timer % 2 == 0) {
                 moveEnemies(enemies, player1);
             }
         }
+        //Nastavitev hitrosti premika sovražnikov
         else {
             if (timer % 5 == 0) {
                 moveEnemies(enemies, player1);
@@ -339,15 +359,16 @@ int main() {
         }
         moveBullets(player1, enemies, obstacles);
         drawBoard(player1, enemies, obstacles);
-        if (_kbhit()) {
-            input = _getch();
+        if (_kbhit()) { //Proži se, če je tipkovnica zazna spremembno stanja
+            input = _getch(); //Pripiše vrednost udarjane tipke v input
             movePlayer(input, player1);
         }
-        timer++;
-        Sleep(10);
-        if (numOfAlive == 0) {
+        timer++; //Povečanje vrednosti timerja
+        Sleep(10); //Uravnavanje hitrosti igre
+        //Tukaj je napisan konec pogoj za zmago
+        if (numOfAlive == 0) { //Zmaga se, pod pogojem, da je število sovražnikov enako nič
             cout << "YOU HAVE WON";
-            exit(0);
+            exit(0); //Konča program
         }
     }
     cout << "GAME OVER";
